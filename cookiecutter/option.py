@@ -72,6 +72,34 @@ class StringOption(Option):
 
 
 @option_types.register
+class IntOption(Option):
+    type_name = 'int'
+
+    def __init__(self, min=None, max=None, **kwargs):
+        self.min = min
+        self.max = max
+        super(IntOption, self).__init__(**kwargs)
+
+    def clean(self, value):
+        value = super(IntOption, self).clean(value)
+
+        try:
+            value = int(value)
+        except ValueError:
+            raise ValidationException('"{0}" is not a valid integer'.format(value))
+
+        if self.min is not None and value < self.min:
+            raise ValidationException('The value must be greater than {0}'.format(
+                self.min))
+
+        if self.max is not None and value > self.max:
+            raise ValidationException('The value must be less than than {0}'.format(
+                self.max))
+
+        return value
+
+
+@option_types.register
 class ChoicesOption(Option):
     type_name = 'choice'
 
